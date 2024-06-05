@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using WebAPI.DAL;
 
@@ -11,9 +12,10 @@ using WebAPI.DAL;
 namespace FitVital.Migrations
 {
     [DbContext(typeof(DataBaseContext))]
-    partial class DataBaseContextModelSnapshot : ModelSnapshot
+    [Migration("20240605064718_Update2FitVitalDB")]
+    partial class Update2FitVitalDB
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -41,6 +43,10 @@ namespace FitVital.Migrations
 
                     b.HasIndex("CitaId")
                         .IsUnique();
+
+                    b.HasIndex("EntrenadorId");
+
+                    b.HasIndex("UsuarioId");
 
                     b.ToTable("Agendas");
                 });
@@ -127,6 +133,35 @@ namespace FitVital.Migrations
                         .IsUnique();
 
                     b.ToTable("Usuarios");
+                });
+
+            modelBuilder.Entity("FitVital.DAL.Entities.Agenda", b =>
+                {
+                    b.HasOne("FitVital.DAL.Entities.Entrenador", "Entrenador")
+                        .WithMany("Agenda")
+                        .HasForeignKey("EntrenadorId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("FitVital.DAL.Entities.Usuario", "Usuario")
+                        .WithMany("Agenda")
+                        .HasForeignKey("UsuarioId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Entrenador");
+
+                    b.Navigation("Usuario");
+                });
+
+            modelBuilder.Entity("FitVital.DAL.Entities.Entrenador", b =>
+                {
+                    b.Navigation("Agenda");
+                });
+
+            modelBuilder.Entity("FitVital.DAL.Entities.Usuario", b =>
+                {
+                    b.Navigation("Agenda");
                 });
 #pragma warning restore 612, 618
         }

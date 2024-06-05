@@ -7,10 +7,10 @@ namespace FitVital.DAL.Entities
         [Key]
         public Guid CitaId { get; set; }
         public Guid UsuarioId { get; set; }
-        public Usuario Usuario { get; set; }
+        //public Usuario? Usuario { get; set; }
 
         public Guid EntrenadorId { get; set; }
-        public Entrenador Entrenador { get; set; }
+        //public Entrenador? Entrenador { get; set; }
 
         public DateTime FechaHora { get; set; }
     }

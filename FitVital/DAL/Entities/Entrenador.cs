@@ -13,7 +13,7 @@ namespace FitVital.DAL.Entities
 
         public Boolean Activo { get; set; }
 
-        // Relación uno a muchos con Agenda
-        public List<Agenda> Agenda { get; set; } = new List<Agenda>();
+        //// Relación uno a muchos con Agenda
+        //public ICollection<Agenda>? States { get; set; }
     }
 }

@@ -47,11 +47,11 @@ namespace FitVital.Domain.Services
             try
             {
                 usuario.UsuarioId = Guid.NewGuid();
-                usuario.Nombre = string.Empty;
-                usuario.Telefono = string.Empty;
-                usuario.Correo = string.Empty;
-                usuario.Edad = int.MaxValue;
-                usuario.Genero = string.Empty;
+                usuario.Nombre = usuario.Nombre;
+                usuario.Telefono = usuario.Telefono;
+                usuario.Correo = usuario.Correo;
+                usuario.Edad = usuario.Edad;
+                usuario.Genero = usuario.Genero;
                 _context.Usuarios.Add(usuario); //El Método Add() me permite crear el objeto en el contexto de mi BD
 
                 await _context.SaveChangesAsync();
@@ -61,7 +61,7 @@ namespace FitVital.Domain.Services
             }
             catch (DbUpdateException dbUpdateException)
             {
-                throw new Exception(dbUpdateException.InnerException?.Message ?? dbUpdateException.Message);
+                throw new Exception("Error a la hora de insertar");
             }
         }
 

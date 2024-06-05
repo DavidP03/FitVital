@@ -1,11 +1,6 @@
 ﻿using FitVital.DAL.Entities;
-using FitVital.DAL;
-using fitVital_API.DAL.Entities;
-using fitVital_API.Domain.Interfaces;
 using fitVital_API.Domain.Interfaces;
 using Microsoft.EntityFrameworkCore;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using WebAPI.DAL;
 
 namespace fitVital_API.Domain.Services
@@ -24,7 +19,7 @@ namespace fitVital_API.Domain.Services
             try
             {
 
-                var entrenador = await _context.Entrenadores.FirstOrDefaultAsync(x => x.EntrenadorId == id);
+                var entrenador = await GetEntrenadorById(id);
 
                 if (entrenador == null)
                 {
@@ -50,13 +45,29 @@ namespace fitVital_API.Domain.Services
             }
         }
 
+        public async Task<Entrenador> GetEntrenadorById(Guid id)
+        {
+            try
+            {
+
+                var entrenador = await _context.Entrenadores.FirstOrDefaultAsync(x => x.EntrenadorId == id);
+
+                return entrenador;
+
+            }
+            catch (DbUpdateException dbUpdateException)
+            {
+                throw new Exception(dbUpdateException.InnerException?.Message ?? dbUpdateException.Message);
+            }
+        }
+
         public async Task<IEnumerable<Entrenador>> GetEntrenadores()
         {
             try
             {
-                var entrenadores = await _context.Entrenador.ToList();
+                var entrenadores = await _context.Entrenadores.ToListAsync();
 
-                return < IEnumerable < Entrenador >> entrenadores;
+                return (IEnumerable<Entrenador>)entrenadores;
 
             }
             catch (DbUpdateException dbUpdateException)
@@ -72,6 +83,7 @@ namespace fitVital_API.Domain.Services
                 entrenador.EntrenadorId = Guid.NewGuid();
                 entrenador.Nombre = entrenador.Nombre;
                 entrenador.Activo = true;
+                entrenador.Especialidad = entrenador.Especialidad;
 
                 _context.Entrenadores.Add(entrenador);
 
@@ -83,7 +95,7 @@ namespace fitVital_API.Domain.Services
             }
             catch (DbUpdateException dbUpdateException)
             {
-                throw new Exception(dbUpdateException.InnerException?.Message ?? dbUpdateException.Message);
+                throw new Exception("Error en la capa de service entrenador");
             }
         }
     }

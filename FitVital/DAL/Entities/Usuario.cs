@@ -19,7 +19,7 @@ namespace FitVital.DAL.Entities
         [MaxLength(9, ErrorMessage = "El campo {0} admite como maximo {1} caracteres")]
         public string Genero { get; set; }
 
-        // Relación uno a muchos con Agenda
-        public List<Agenda> Agenda { get; set; } = new List<Agenda>();
+        //// Relación uno a muchos con Agenda
+        //public List<Agenda>? Agenda { get; set; } = new List<Agenda>();
     }
 }
