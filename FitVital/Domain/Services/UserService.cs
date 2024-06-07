@@ -6,16 +6,58 @@ using WebAPI.DAL;
 
 namespace FitVital.Domain.Services
 {
-    public class UsuarioService : IUsuarioService
+    public class UserService : IUserService
     {
         private readonly DataBaseContext _context;
 
-        public UsuarioService(DataBaseContext context)
+        public UserService(DataBaseContext context)
         {
             _context = context;
         }
 
-        public async Task<IEnumerable<Usuario>> GetUsuariosAsync()
+        public async Task<User> RegisterUserAsync(User newUser)
+        {
+            _context.Users.Add(newUser);
+            await _context.SaveChangesAsync();
+            return newUser;
+        }
+
+        public async Task<User> GetUserByIdAsync(int id)
+        {
+            return await _context.Users.FindAsync(id);
+        }
+
+        public async Task DeactivateUserAsync(int userId)
+        {
+            var user = await _context.Users.FindAsync(userId);
+            if (user != null)
+            {
+                user.IsActive = false;
+                await _context.SaveChangesAsync();
+            }
+        }
+
+        public async Task<IEnumerable<User>> GetAllUsersAsync()
+        {
+            return await _context.Users.ToListAsync();
+        }
+
+        public async Task<IEnumerable<User>> GetAllActiveUsersAsync()
+        {
+            return await _context.Users.Where(u => u.IsActive).ToListAsync();
+        }
+    }
+
+    /*public class UserService : IUserService
+    {
+        private readonly DataBaseContext _context;
+
+        public UserService(DataBaseContext context)
+        {
+            _context = context;
+        }
+
+        public async Task<IEnumerable<User>> GetUsuariosAsync()
         {
             try
             {
@@ -28,7 +70,7 @@ namespace FitVital.Domain.Services
             }
         }
 
-        public async Task<Usuario> GetUsuarioByIdAsync(Guid id)
+        public async Task<User> GetUsuarioByIdAsync(Guid id)
         {
             try
             {
@@ -42,7 +84,7 @@ namespace FitVital.Domain.Services
             }
         }
 
-        public async Task<Usuario> PostUsuarioAsync(Usuario usuario)
+        public async Task<User> PostUsuarioAsync(User usuario)
         {
             try
             {
@@ -65,7 +107,7 @@ namespace FitVital.Domain.Services
             }
         }
 
-        public async Task<Usuario> DeleteUsuarioAsync(Guid id)
+        public async Task<User> DeleteUsuarioAsync(Guid id)
         {
             try
             {
@@ -86,5 +128,5 @@ namespace FitVital.Domain.Services
                 throw new Exception(dbUpdateException.InnerException?.Message ?? dbUpdateException.Message);
             }
         }
-    }
+    }*/
 }
