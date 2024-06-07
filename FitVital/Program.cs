@@ -1,8 +1,6 @@
 using FitVital.DAL;
 using FitVital.Domain.Interfaces;
 using FitVital.Domain.Services;
-using fitVital_API.Domain.Interfaces;
-using fitVital_API.Domain.Services;
 using Microsoft.EntityFrameworkCore;
 using WebAPI.DAL;
 
@@ -15,9 +13,9 @@ builder.Services.AddControllers();
 //Esta es la línea de code que necesito para configurar la conexión a la BD
 builder.Services.AddDbContext<DataBaseContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-builder.Services.AddScoped<IEntrenadorService,EntrenadorService>();
-
-builder.Services.AddScoped<IUsuarioService, UsuarioService>();
+builder.Services.AddScoped<IRoleService,RoleService>();
+builder.Services.AddScoped<IAppointmentService, AppointmentService>();
+builder.Services.AddScoped<IUserService, UserService>();
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
