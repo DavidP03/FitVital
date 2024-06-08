@@ -1,8 +1,8 @@
 ﻿using FitVital.DAL.Entities;
-using FitVital.Domain.Services;
+using FitVital.Domain.Interfaces;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using WebAPI.DAL;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace FitVital.Controllers
 {
@@ -10,18 +10,11 @@ namespace FitVital.Controllers
     [ApiController]
     public class AppointmentsController : ControllerBase
     {
-        private readonly DataBaseContext _context;
+        private readonly IAppointmentService _appointmentService;
 
-        public AppointmentsController(DataBaseContext context)
+        public AppointmentsController(IAppointmentService appointmentService)
         {
-            _context = context;
-        }
-        
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<Appointment>>> GetAppointments()
-        {
-            var appointments = await _context.Appointments.ToListAsync();
-            return Ok(appointments);
+            _appointmentService = appointmentService;
         }
 
         // Método para solicitar una cita
@@ -33,82 +26,57 @@ namespace FitVital.Controllers
                 return BadRequest(ModelState);
             }
 
-            var user = await _context.Users.FindAsync(request.UserId);
-
-            if (user == null)
+            var response = await _appointmentService.RequestAppointment(request);
+            if (response == null)
             {
-                return NotFound("User not found");
+                return BadRequest("Invalid appointment request.");
             }
 
-            DateTime endTime = request.EndTime ?? request.StartTime.AddHours(1);
+            var responseObject = (Appointment)response.Object;
 
-            if (endTime <= request.StartTime || (endTime - request.StartTime).TotalHours > 2)
-            {
-                return BadRequest("End time must be greater than start time and not exceed 2 hours.");
-            }
-
-            var newAppointment = new Appointment
-            {
-                StartTime = request.StartTime,
-                EndTime = endTime,
-                Description = request.Description,
-                RequestedBy = user
-            };
-
-            _context.Appointments.Add(newAppointment);
-            await _context.SaveChangesAsync();
-
-            // Cargar solo las propiedades necesarias del nuevo compromiso
             var responseAppointment = new
             {
-                newAppointment.AppointmentId,
-                newAppointment.StartTime,
-                newAppointment.EndTime,
-                newAppointment.Description,
-                // Agregar otras propiedades según sea necesario
+                responseObject.AppointmentId,
+                responseObject.StartTime,
+                responseObject.EndTime,
+                responseObject.Description,
             };
 
-            return CreatedAtAction(nameof(GetAppointmentById), new { id = newAppointment.AppointmentId }, responseAppointment);
+            return CreatedAtAction(nameof(GetAppointmentById), new { id = responseObject.AppointmentId }, responseAppointment);
         }
 
+        // Método para Asignar una cita a un usuario con rol trainer
         [HttpPost("assign")]
         public async Task<IActionResult> AssignAppointment(int appointmentId, int assignedToUserId)
         {
-            //Se valida que existe la cita
-            var appointment = await _context.Appointments.FindAsync(appointmentId);
-            if (appointment == null)
+            var result = await _appointmentService.AssignAppointment(appointmentId, assignedToUserId);
+            if (result == null)
             {
-                return NotFound("Appointment not found");
+                return BadRequest("Assignment failed.");
             }
 
-            // Se valida que exista el usuario con rol de entrenador
-            var user = await _context.Users
-                .Include(u => u.UserRoles)
-                    .ThenInclude(ur => ur.Role) // Incluye la entidad de rol asociada
-                    .FirstOrDefaultAsync(u => u.UserId == assignedToUserId);
-            if (user == null)
+            if(result.Success)
             {
-                return BadRequest("User not found");
-            }
-
-            bool isTrainer = user.UserRoles.Any(ur => ur.Role.Name == "Trainer");
-
-            if (!isTrainer)
+                return Ok();
+            } else
             {
-                return BadRequest("User is not a trainer");
+                return BadRequest(result.Message);
             }
-
-            //Si todo esta bien se procede a hacer la asignacion solicitada.
-            appointment.AssignedTo = user;
-            await _context.SaveChangesAsync();
-
-            return Ok();
         }
 
-        [HttpGet("{id}")]
+        // Metodo para listar todas las citas
+        [HttpGet("getAll")]
+        public async Task<ActionResult<IEnumerable<Appointment>>> GetAppointments()
+        {
+            var appointments = await _appointmentService.GetAppointments();
+            return Ok(appointments);
+        }
+
+        // Metodo para mostrar cita basandose en su Id
+        [HttpGet("getById/{id}")]
         public async Task<ActionResult<Appointment>> GetAppointmentById(int id)
         {
-            var appointment = await _context.Appointments.FindAsync(id);
+            var appointment = await _appointmentService.GetAppointmentById(id);
 
             if (appointment == null)
             {
@@ -118,21 +86,35 @@ namespace FitVital.Controllers
             return appointment;
         }
 
-        [HttpGet("user/{userId}")]
+        // Obtiene citas solicitadas por un usuario especifico
+        [HttpGet("getRequestedByUserId/{userId}")]
         public async Task<ActionResult<IEnumerable<Appointment>>> GetAppointmentsByUserId(int userId)
         {
-            var user = await _context.Users.FindAsync(userId);
-            var appointments = await _context.Appointments.Where(a => a.RequestedBy == user).ToListAsync();
+            var appointments = await _appointmentService.GetAppointmentsByUserId(userId);
 
             if (appointments == null || appointments.Count == 0)
             {
-                return NotFound();
+                return NotFound("No appointments found for the specified user.");
             }
 
-            return appointments;
+            return Ok(appointments);
+        }
+
+        // Borrar Cita
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteAppointment(int id)
+        {
+            var result = await _appointmentService.DeleteAppointment(id);
+            if (result == null)
+            {
+                return NotFound("Appointment not found.");
+            }
+
+            return NoContent();
         }
     }
 
+    // Objeto auxiliar para realizar la solicitud de citas
     public class AppointmentRequest
     {
         public int UserId { get; set; }
