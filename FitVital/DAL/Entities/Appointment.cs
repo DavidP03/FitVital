@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.AspNetCore.Components.Web.Virtualization;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Data;
 
@@ -12,17 +13,17 @@ namespace FitVital.DAL.Entities
 
         [Required]
         public DateTime StartTime { get; set; } // Fecha y hora de inicio de la cita
-        public DateTime EndTime { get; set; } // Fecha y hora de finalización de la cita, si no se especifica sera 1hora despues de la fecha de inicio
+        public DateTime? EndTime { get; set; } // Fecha y hora de finalización de la cita, si no se especifica sera 1hora despues de la fecha de inicio
 
         [Required]
         [MaxLength(500)]
         public string Description { get; set; }
 
         [Required]
-        public int RequestedById { get; set; }
+        public virtual int RequestedById { get; set; }
         public virtual User RequestedBy { get; set; }
 
-        public int? AssignedToId { get; set; } 
+        public virtual int? AssignedToId { get; set; } 
         public virtual User? AssignedTo { get; set; }
     }
 }
