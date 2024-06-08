@@ -45,7 +45,8 @@ namespace FitVital.DAL.Entities
 
         public bool IsActive { get; set; } = true;
         public virtual ICollection<UserRole> UserRoles { get; set; } = new List<UserRole>(); // Relación con UserRoles
-        public virtual ICollection<Appointment> AppointmentsRequested { get; set; } = new List<Appointment>(); // Relación con citas solicitadas
-        public virtual ICollection<Appointment> AppointmentsAssigned { get; set; } = new List<Appointment>(); // Relación con citas asignadas como entrenador
+        public virtual ICollection<Appointment> AssignedAppointments { get; set; } = new List<Appointment>();
+        public virtual ICollection<Appointment> RequestedAppointments { get; set; } = new List<Appointment>();
+
     }
 }

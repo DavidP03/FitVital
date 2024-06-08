@@ -142,6 +142,9 @@ namespace FitVital.Migrations
 
                     b.HasKey("UserId");
 
+                    b.HasIndex("Username")
+                        .IsUnique();
+
                     b.ToTable("Users");
 
                     b.HasData(
@@ -211,14 +214,13 @@ namespace FitVital.Migrations
             modelBuilder.Entity("FitVital.DAL.Entities.Appointment", b =>
                 {
                     b.HasOne("FitVital.DAL.Entities.User", "AssignedTo")
-                        .WithMany("AppointmentsAssigned")
-                        .HasForeignKey("AssignedToId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .WithMany("AssignedAppointments")
+                        .HasForeignKey("AssignedToId");
 
                     b.HasOne("FitVital.DAL.Entities.User", "RequestedBy")
-                        .WithMany("AppointmentsRequested")
+                        .WithMany("RequestedAppointments")
                         .HasForeignKey("RequestedById")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("AssignedTo");
@@ -252,9 +254,9 @@ namespace FitVital.Migrations
 
             modelBuilder.Entity("FitVital.DAL.Entities.User", b =>
                 {
-                    b.Navigation("AppointmentsAssigned");
+                    b.Navigation("AssignedAppointments");
 
-                    b.Navigation("AppointmentsRequested");
+                    b.Navigation("RequestedAppointments");
 
                     b.Navigation("UserRoles");
                 });

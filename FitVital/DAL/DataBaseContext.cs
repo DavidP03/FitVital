@@ -23,6 +23,11 @@ namespace WebAPI.DAL
         {
             base.OnModelCreating(modelBuilder);
 
+            // Configurar la propiedad Username como única
+            modelBuilder.Entity<User>()
+                .HasIndex(u => u.Username)
+                .IsUnique();
+
             // Configurar la relación muchos a muchos entre User y Role
             modelBuilder.Entity<UserRole>()
                 .HasKey(ur => new { ur.UserId, ur.RoleId });
@@ -37,18 +42,10 @@ namespace WebAPI.DAL
                 .WithMany(r => r.UserRoles)
                 .HasForeignKey(ur => ur.RoleId);
 
-            // Configurar relaciones para Appointment
-            modelBuilder.Entity<Appointment>()
-                .HasOne(a => a.RequestedBy)
-                .WithMany(u => u.AppointmentsRequested)
-                .HasForeignKey(a => a.RequestedById)
-                .OnDelete(DeleteBehavior.Restrict); // Evitar eliminación en cascada
-
             modelBuilder.Entity<Appointment>()
                 .HasOne(a => a.AssignedTo)
-                .WithMany(u => u.AppointmentsAssigned)
-                .HasForeignKey(a => a.AssignedToId)
-                .OnDelete(DeleteBehavior.Restrict); // Evitar eliminación en cascada
+                .WithMany(u => u.AssignedAppointments) // O con WithOne si la relación es uno a uno
+                .HasForeignKey(a => a.AssignedToId);
 
             // Datos semilla para roles
             modelBuilder.Entity<Role>().HasData(
