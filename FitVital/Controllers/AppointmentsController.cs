@@ -1,4 +1,5 @@
-﻿using FitVital.DAL.Entities;
+﻿using FitVital.DAL;
+using FitVital.DAL.Entities;
 using FitVital.Domain.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -84,8 +85,8 @@ namespace FitVital.Controllers
             // Se valida que exista el usuario con rol de entrenador
             var user = await _context.Users
                 .Include(u => u.UserRoles)
-                    .ThenInclude(ur => ur.Role) // Incluye la entidad de rol asociada
-                    .FirstOrDefaultAsync(u => u.UserId == assignedToUserId);
+                .ThenInclude(ur => ur.Role) // Incluye la entidad de rol asociada
+                .FirstOrDefaultAsync(u => u.UserId == assignedToUserId);
             if (user == null)
             {
                 return BadRequest("User not found");
@@ -121,16 +122,37 @@ namespace FitVital.Controllers
         [HttpGet("user/{userId}")]
         public async Task<ActionResult<IEnumerable<Appointment>>> GetAppointmentsByUserId(int userId)
         {
-            var user = await _context.Users.FindAsync(userId);
-            var appointments = await _context.Appointments.Where(a => a.RequestedBy == user).ToListAsync();
+            var user = await _context.Users
+                .Include(u => u.UserRoles)
+                    .ThenInclude(ur => ur.Role) // Incluye la entidad de rol asociada
+                .FirstOrDefaultAsync(u => u.UserId == userId);
+
+            if (user == null)
+            {
+                return NotFound("User not found");
+            }
+
+            var appointments = await _context.Appointments
+                .Where(a => a.RequestedById == userId)
+                .Select(a => new Appointment
+                {
+                    AppointmentId = a.AppointmentId,
+                    StartTime = a.StartTime,
+                    EndTime = a.EndTime,
+                    Description = a.Description,
+                    RequestedById = a.RequestedById,
+                    AssignedToId = a.AssignedToId
+                })
+                .ToListAsync();
 
             if (appointments == null || appointments.Count == 0)
             {
                 return NotFound();
             }
 
-            return appointments;
+            return Ok(appointments);
         }
+
     }
 
     public class AppointmentRequest

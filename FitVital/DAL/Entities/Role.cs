@@ -13,6 +13,6 @@ namespace FitVital.DAL.Entities
         [MaxLength(50)]
         public string Name { get; set; }
 
-        public ICollection<UserRole> UserRoles { get; set; } = new List<UserRole>();
+        public virtual ICollection<UserRole> UserRoles { get; set; } = new List<UserRole>();
     }
 }

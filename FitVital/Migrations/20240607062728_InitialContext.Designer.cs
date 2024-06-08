@@ -12,7 +12,7 @@ using WebAPI.DAL;
 namespace FitVital.Migrations
 {
     [DbContext(typeof(DataBaseContext))]
-    [Migration("20240607043437_InitialContext")]
+    [Migration("20240607062728_InitialContext")]
     partial class InitialContext
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -40,7 +40,7 @@ namespace FitVital.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
 
-                    b.Property<DateTime>("EndTime")
+                    b.Property<DateTime?>("EndTime")
                         .HasColumnType("datetime2");
 
                     b.Property<int>("RequestedById")
