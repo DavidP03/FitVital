@@ -12,7 +12,7 @@ using WebAPI.DAL;
 namespace FitVital.Migrations
 {
     [DbContext(typeof(DataBaseContext))]
-    [Migration("20240606101957_InitialContext")]
+    [Migration("20240607043437_InitialContext")]
     partial class InitialContext
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -33,7 +33,6 @@ namespace FitVital.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("AppointmentId"), 1L, 1);
 
                     b.Property<int?>("AssignedToId")
-                        .IsRequired()
                         .HasColumnType("int");
 
                     b.Property<string>("Description")
@@ -103,7 +102,7 @@ namespace FitVital.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("UserId"), 1L, 1);
 
                     b.Property<DateTime>("BirthDate")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("date");
 
                     b.Property<string>("Email")
                         .IsRequired()
@@ -117,8 +116,8 @@ namespace FitVital.Migrations
 
                     b.Property<string>("Gender")
                         .IsRequired()
-                        .HasMaxLength(10)
-                        .HasColumnType("nvarchar(10)");
+                        .HasMaxLength(1)
+                        .HasColumnType("nvarchar(1)");
 
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
@@ -146,6 +145,34 @@ namespace FitVital.Migrations
                     b.HasKey("UserId");
 
                     b.ToTable("Users");
+
+                    b.HasData(
+                        new
+                        {
+                            UserId = 1,
+                            BirthDate = new DateTime(1989, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Email = "paquito89@example.com",
+                            FirstName = "Paco",
+                            Gender = "M",
+                            IsActive = true,
+                            LastName = "Tilla",
+                            Password = "pass",
+                            PhoneNumber = "1234567",
+                            Username = "paquito89"
+                        },
+                        new
+                        {
+                            UserId = 2,
+                            BirthDate = new DateTime(1995, 6, 15, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Email = "carlos45hd@example.com",
+                            FirstName = "Carlos",
+                            Gender = "M",
+                            IsActive = true,
+                            LastName = "Hurtado",
+                            Password = "pass",
+                            PhoneNumber = "7654321",
+                            Username = "carlos45hd"
+                        });
                 });
 
             modelBuilder.Entity("FitVital.DAL.Entities.UserRole", b =>
@@ -166,7 +193,21 @@ namespace FitVital.Migrations
 
                     b.HasIndex("RoleId");
 
-                    b.ToTable("UserRole");
+                    b.ToTable("UserRoles");
+
+                    b.HasData(
+                        new
+                        {
+                            UserId = 1,
+                            RoleId = 1,
+                            Id = 0
+                        },
+                        new
+                        {
+                            UserId = 2,
+                            RoleId = 3,
+                            Id = 0
+                        });
                 });
 
             modelBuilder.Entity("FitVital.DAL.Entities.Appointment", b =>
@@ -174,8 +215,7 @@ namespace FitVital.Migrations
                     b.HasOne("FitVital.DAL.Entities.User", "AssignedTo")
                         .WithMany("AppointmentsAssigned")
                         .HasForeignKey("AssignedToId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("FitVital.DAL.Entities.User", "RequestedBy")
                         .WithMany("AppointmentsRequested")

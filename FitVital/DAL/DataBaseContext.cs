@@ -15,8 +15,8 @@ namespace WebAPI.DAL
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             optionsBuilder.UseSqlServer("Server=localhost\\SQLEXPRESS;Database=FitVitalDB;User ID=sa;Password=saPass;");
+            base.OnConfiguring(optionsBuilder);
         }
-
 
         //Este método que es propio de EF CORE me sirve para configurar unos índices de cada campo de una tabla en BD
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -56,6 +56,40 @@ namespace WebAPI.DAL
                 new Role { RoleId = 2, Name = "Admin" },
                 new Role { RoleId = 3, Name = "Trainer" }
             );
+
+            // Agregar usuarios al inicializar la base de datos
+            modelBuilder.Entity<User>().HasData(
+                new User
+                {
+                    UserId = 1,
+                    Username = "paquito89",
+                    Password = "pass",
+                    Email = "paquito89@example.com",
+                    FirstName = "Paco",
+                    LastName = "Tilla",
+                    PhoneNumber = "1234567",
+                    BirthDate = new DateTime(1989, 1, 1),
+                    Gender = "M"
+                },
+                new User
+                {
+                    UserId = 2,
+                    Username = "carlos45hd",
+                    Password = "pass",
+                    Email = "carlos45hd@example.com",
+                    FirstName = "Carlos",
+                    LastName = "Hurtado",
+                    PhoneNumber = "7654321",
+                    BirthDate = new DateTime(1995, 6, 15),
+                    Gender = "M"
+                }
+            );
+
+            // Asignar roles a los usuarios al inicializar la base de datos
+            modelBuilder.Entity<UserRole>().HasData(
+                new UserRole { UserId = 1, RoleId = 1 }, // Usuario 1 (cliente)
+                new UserRole { UserId = 2, RoleId = 3 }  // Usuario 2 (entrenador)
+            );
         }
 
         #region DbSets
@@ -63,6 +97,7 @@ namespace WebAPI.DAL
         public DbSet<User> Users { get; set; }
         public DbSet<Appointment> Appointments { get; set; }
         public DbSet<Role> Roles { get; set; }
+        public DbSet<UserRole> UserRoles { get; set; }
 
         #endregion
     }

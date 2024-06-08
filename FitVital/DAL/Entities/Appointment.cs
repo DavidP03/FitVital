@@ -20,9 +20,9 @@ namespace FitVital.DAL.Entities
 
         [Required]
         public int RequestedById { get; set; }
-        public User RequestedBy { get; set; }
+        public virtual User RequestedBy { get; set; }
 
         public int? AssignedToId { get; set; } 
-        public User AssignedTo { get; set; }
+        public virtual User? AssignedTo { get; set; }
     }
 }

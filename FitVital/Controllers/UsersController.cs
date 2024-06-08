@@ -68,6 +68,29 @@ namespace FitVital.Controllers
             return Ok();
         }
 
+        // Obtener todos los usuarios
+        [HttpGet("all")]
+        public async Task<ActionResult<IEnumerable<User>>> GetAllUsers()
+        {
+            return await _context.Users.ToListAsync();
+        }
+
+        // Obtener usuarios activos
+        [HttpGet("active")]
+        public async Task<ActionResult<IEnumerable<User>>> GetActiveUsers()
+        {
+            return await _context.Users.Where(u => u.IsActive).ToListAsync();
+        }
+
+        // Obtener usuarios activos según su rol
+        [HttpGet("active/role/{roleName}")]
+        public async Task<ActionResult<IEnumerable<User>>> GetActiveUsersByRole(string roleName)
+        {
+            return await _context.Users
+                                 .Where(u => u.IsActive && u.UserRoles.Any(ur => ur.Role.Name == roleName))
+                                 .ToListAsync();
+        }
+
 
         [HttpGet("{id}")]
         public async Task<ActionResult<User>> GetUserById(int id)

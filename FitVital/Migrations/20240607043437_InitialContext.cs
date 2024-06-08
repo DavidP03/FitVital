@@ -34,8 +34,8 @@ namespace FitVital.Migrations
                     FirstName = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     LastName = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     PhoneNumber = table.Column<string>(type: "nvarchar(15)", maxLength: 15, nullable: false),
-                    BirthDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    Gender = table.Column<string>(type: "nvarchar(10)", maxLength: 10, nullable: false),
+                    BirthDate = table.Column<DateTime>(type: "date", nullable: false),
+                    Gender = table.Column<string>(type: "nvarchar(1)", maxLength: 1, nullable: false),
                     IsActive = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
@@ -53,7 +53,7 @@ namespace FitVital.Migrations
                     EndTime = table.Column<DateTime>(type: "datetime2", nullable: false),
                     Description = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
                     RequestedById = table.Column<int>(type: "int", nullable: false),
-                    AssignedToId = table.Column<int>(type: "int", nullable: false)
+                    AssignedToId = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -73,7 +73,7 @@ namespace FitVital.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "UserRole",
+                name: "UserRoles",
                 columns: table => new
                 {
                     UserId = table.Column<int>(type: "int", nullable: false),
@@ -83,15 +83,15 @@ namespace FitVital.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_UserRole", x => new { x.UserId, x.RoleId });
+                    table.PrimaryKey("PK_UserRoles", x => new { x.UserId, x.RoleId });
                     table.ForeignKey(
-                        name: "FK_UserRole_Roles_RoleId",
+                        name: "FK_UserRoles_Roles_RoleId",
                         column: x => x.RoleId,
                         principalTable: "Roles",
                         principalColumn: "RoleId",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_UserRole_Users_UserId",
+                        name: "FK_UserRoles_Users_UserId",
                         column: x => x.UserId,
                         principalTable: "Users",
                         principalColumn: "UserId",
@@ -101,17 +101,31 @@ namespace FitVital.Migrations
             migrationBuilder.InsertData(
                 table: "Roles",
                 columns: new[] { "RoleId", "Name" },
-                values: new object[] { 1, "Client" });
+                values: new object[,]
+                {
+                    { 1, "Client" },
+                    { 2, "Admin" },
+                    { 3, "Trainer" }
+                });
 
             migrationBuilder.InsertData(
-                table: "Roles",
-                columns: new[] { "RoleId", "Name" },
-                values: new object[] { 2, "Admin" });
+                table: "Users",
+                columns: new[] { "UserId", "BirthDate", "Email", "FirstName", "Gender", "IsActive", "LastName", "Password", "PhoneNumber", "Username" },
+                values: new object[,]
+                {
+                    { 1, new DateTime(1989, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "paquito89@example.com", "Paco", "M", true, "Tilla", "pass", "1234567", "paquito89" },
+                    { 2, new DateTime(1995, 6, 15, 0, 0, 0, 0, DateTimeKind.Unspecified), "carlos45hd@example.com", "Carlos", "M", true, "Hurtado", "pass", "7654321", "carlos45hd" }
+                });
 
             migrationBuilder.InsertData(
-                table: "Roles",
-                columns: new[] { "RoleId", "Name" },
-                values: new object[] { 3, "Trainer" });
+                table: "UserRoles",
+                columns: new[] { "RoleId", "UserId" },
+                values: new object[] { 1, 1 });
+
+            migrationBuilder.InsertData(
+                table: "UserRoles",
+                columns: new[] { "RoleId", "UserId" },
+                values: new object[] { 3, 2 });
 
             migrationBuilder.CreateIndex(
                 name: "IX_Appointments_AssignedToId",
@@ -124,8 +138,8 @@ namespace FitVital.Migrations
                 column: "RequestedById");
 
             migrationBuilder.CreateIndex(
-                name: "IX_UserRole_RoleId",
-                table: "UserRole",
+                name: "IX_UserRoles_RoleId",
+                table: "UserRoles",
                 column: "RoleId");
         }
 
@@ -135,7 +149,7 @@ namespace FitVital.Migrations
                 name: "Appointments");
 
             migrationBuilder.DropTable(
-                name: "UserRole");
+                name: "UserRoles");
 
             migrationBuilder.DropTable(
                 name: "Roles");

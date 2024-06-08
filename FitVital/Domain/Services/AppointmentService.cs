@@ -14,15 +14,20 @@ namespace FitVital.Domain.Services
             _context = context;
         }
 
+        public IEnumerable<Appointment> GetAllAppointments()
+        {
+            return _context.Appointments.ToList(); 
+        }
+
         public async Task<Appointment> CreateAppointmentAsync(Appointment newAppointment)
         {
-            var user = await _context.Users.FindAsync(newAppointment.RequestedBy);
-
+            var user = await _context.Users.FindAsync(newAppointment.RequestedBy.UserId);
             if (user == null)
             {
-                throw new System.Exception("Invalid user.");
+                throw new Exception("Invalid user");
             }
 
+            newAppointment.RequestedBy = user;
             _context.Appointments.Add(newAppointment);
             await _context.SaveChangesAsync();
             return newAppointment;

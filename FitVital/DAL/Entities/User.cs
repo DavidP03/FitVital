@@ -35,9 +35,12 @@ namespace FitVital.DAL.Entities
         public string PhoneNumber { get; set; }
 
         [Required]
+        [Column(TypeName = "date")] // Esto asegura que solo se guarde la fecha en la base de datos
         public DateTime BirthDate { get; set; }
 
-        [MaxLength(10)]
+        [Required]
+        [RegularExpression("^[MFO]$", ErrorMessage = "Gender must be 'M', 'F', or 'O'")]
+        [MaxLength(1)]
         public string Gender { get; set; }
 
         public bool IsActive { get; set; } = true;
